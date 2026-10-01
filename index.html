@@ -1,18 +1,235 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<meta charset="utf-8">
-<title>Lynn Zhou</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lynn Zhou — Full-Stack Engineer, Financial Data Systems</title>
+<meta name="description" content="Lynn Zhou — full-stack engineer, 14 years across audio codecs, Android, and financial data systems. Currently building derivatives pricing and market-data tooling at a global bank.">
+<meta name="author" content="Lynn Zhou">
+<link rel="canonical" href="https://lynnzhou.dev/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lynn Zhou — Full-Stack Engineer, Financial Data Systems">
+<meta property="og:description" content="14 years building software. The last nine in finance: derivatives pricing and market data, claims billing at scale, and the latency bugs that survive three rounds of tuning.">
+<meta property="og:url" content="https://lynnzhou.dev/">
+<meta property="og:image" content="https://lynnzhou.dev/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@lynnzhoudev">
+<meta name="twitter:image" content="https://lynnzhou.dev/og-image.png">
+
 <style>
-  body{font:16px/1.7 -apple-system,Segoe UI,Roboto,sans-serif;
-       max-width:38rem;margin:18vh auto;padding:0 1.5rem;color:#222}
-  h1{font-size:1.6rem;margin:0 0 .4rem}
-  p{color:#555;margin:.3rem 0}
-  a{color:#0366d6;text-decoration:none}
-  a:hover{text-decoration:underline}
+  :root {
+    --bg:      #faf9f6;
+    --surface: #ffffff;
+    --ink:     #1a1a17;
+    --muted:   #6e6b62;
+    --faint:   #98958c;
+    --rule:    #e4e1d8;
+    --accent:  #9a3412;
+    --accent-soft: rgba(154, 52, 18, 0.08);
+    --grid:    rgba(26, 26, 23, 0.030);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:      #131312;
+      --surface: #1b1b19;
+      --ink:     #eae8e2;
+      --muted:   #918e85;
+      --faint:   #6d6a63;
+      --rule:    #2c2b28;
+      --accent:  #e08d63;
+      --accent-soft: rgba(224, 141, 99, 0.10);
+      --grid:    rgba(234, 232, 226, 0.028);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* faint technical grid — texture, not decoration */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    z-index: 2;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: clamp(56px, 9vw, 112px) clamp(20px, 5vw, 48px) clamp(72px, 9vw, 108px);
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .link {
+    color: var(--ink);
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size .35s cubic-bezier(.16, 1, .3, 1), color .2s ease;
+    padding-bottom: 1px;
+  }
+  .link:hover, .link:focus-visible { background-size: 100% 1px; color: var(--accent); }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-variant-ligatures: none;
+  }
+
+  /* ---------- reveal ---------- */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .r {
+    animation: rise .8s cubic-bezier(.16, 1, .3, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .r { animation: none; }
+    * { transition-duration: .01ms !important; }
+  }
+
+  /* ---------- masthead ---------- */
+  .eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px 11px;
+    font-size: 11.5px;
+    line-height: 1.9;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 30px;
+  }
+  .eyebrow .sp { color: var(--faint); }
+  .dot {
+    flex: none;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 var(--accent-soft);
+    animation: breathe 3.2s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1);    opacity: .75; }
+    50%      { transform: scale(1.35); opacity: 1; }
+  }
+
+  h1 {
+    font-size: clamp(40px, 8.2vw, 76px);
+    line-height: 1.02;
+    letter-spacing: -0.038em;
+    font-weight: 640;
+    margin: 0 0 14px;
+  }
+  h1 .cn {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: .22em;
+    color: var(--faint);
+    margin-top: 12px;
+  }
+
+  .role {
+    font-size: 12.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 34px;
+  }
+
+  /* ---------- lede ---------- */
+  .hero { max-width: 68ch; }
+  .lede p {
+    margin: 0 0 18px;
+    color: var(--ink);
+  }
+  .lede p:last-child { margin-bottom: 0; }
+  .lede .soft { color: var(--muted); }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 620px) {
+    body { font-size: 16px; }
+    .eyebrow { letter-spacing: .1em; }
+  }
 </style>
-<h1>Lynn Zhou</h1>
-<p>Full-stack engineer · financial data systems · building AI tools</p>
-<p><a href="https://github.com/lynnzhoudev">GitHub</a> ·
-   <a href="https://x.com/lynnzhoudev">X</a> · hi@lynnzhou.dev</p>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow r" style="--i:0">
+    <span class="dot" aria-hidden="true"></span>
+    <span>Guangzhou, China</span>
+    <span class="sp" aria-hidden="true">·</span>
+    <span>Open to Hong Kong &amp; remote</span>
+    <span class="sp" aria-hidden="true">·</span>
+    <span>Java / Spring / Python / Angular</span>
+    <span class="sp" aria-hidden="true">·</span>
+    <span>CFA Level I, Sep 2026</span>
+  </div>
+
+  <h1 class="r" style="--i:1">
+    Lynn Zhou
+    <span class="cn">周琳琳</span>
+  </h1>
+
+  <p class="role r" style="--i:2">Full-Stack Engineer &nbsp;—&nbsp; Financial Data Systems</p>
+
+  <div class="hero">
+    <div class="lede">
+      <p class="r" style="--i:3">
+        Fourteen years building software across two continents — the last nine of them in
+        finance. The derivatives pricing and market-data pipeline that a global bank's trading
+        desks work from every day. The claims-billing platform behind a top-ten US health
+        insurer. And before that, a mobile platform used by 350,000 employees at one of
+        China's largest insurers.
+      </p>
+      <p class="r soft" style="--i:4">
+        I'm drawn to the parts of the job most people route around — data quality,
+        reconciliation, and the latency bug that survives three rounds of tuning.
+      </p>
+    </div>
+  </div>
+
+</div>
+</body>
 </html>
