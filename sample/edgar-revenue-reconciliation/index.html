@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revenue Tag Reconciliation — Microsoft Corporation</title>
+<style>
+  :root {
+    --bg:#faf9f6; --panel:#ffffff; --ink:#1c1917; --muted:#78716c; --line:#e7e2da;
+    --accent:#9a3412; --accent-soft:#f5e5dd; --warn:#b45309; --warn-soft:#fdf1e0;
+    --dup:#fffaf3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#131312; --panel:#1a1918; --ink:#f5f3f0; --muted:#a8a29e; --line:#2e2b28;
+             --accent:#e08d63; --accent-soft:#2a1d16; --warn:#e0a45e; --warn-soft:#241c12;
+             --dup:#1e1b17; }
+  }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased }
+  .wrap { max-width:1000px; margin:0 auto; padding:56px 28px 96px }
+  .eyebrow { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:18px }
+  h1 { font-size:42px; line-height:1.15; margin:0 0 18px; letter-spacing:-.022em; font-weight:640 }
+  .lede { font-size:19px; color:var(--muted); margin:0 0 12px; max-width:74ch }
+  .lede strong { color:var(--ink) }
+  h2 { font-size:13px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted);
+    margin:64px 0 20px; font-weight:600 }
+  code { font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace; font-size:.86em;
+    background:var(--accent-soft); color:var(--accent); padding:2px 6px; border-radius:5px }
+  .meta { display:flex; flex-wrap:wrap; gap:22px; margin-top:26px; padding-top:22px;
+    border-top:1px solid var(--line); font-size:13px; color:var(--muted) }
+  .meta b { color:var(--ink); font-weight:600 }
+
+  .findings { display:grid; gap:14px }
+  .find { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:22px 24px }
+  .find h3 { margin:0 0 8px; font-size:16px; letter-spacing:-.01em }
+  .find p { margin:0; color:var(--muted); font-size:14.5px }
+  .find strong { color:var(--accent); font-weight:600 }
+
+  .tw { overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--panel) }
+  table.grid { border-collapse:collapse; width:100%; font-size:13.5px; min-width:820px }
+  table.grid th, table.grid td { padding:11px 14px; text-align:right; border-bottom:1px solid var(--line) }
+  table.grid thead th { font-size:11px; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--muted); font-weight:600; vertical-align:bottom; line-height:1.35;
+    background:var(--bg); position:sticky; top:0; white-space:nowrap }
+  table.grid thead th .tag { writing-mode:horizontal-tb; display:block; max-width:190px;
+    white-space:normal; text-transform:none; letter-spacing:0; font-size:11.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--accent) }
+  table.grid th.yr, table.grid td.yr { text-align:left; font-weight:600 }
+  table.grid tbody tr:hover { background:var(--dup) }
+  table.grid tr.dup { background:var(--dup) }
+  table.grid tr.dup th.yr::after { content:" ◂ two tags"; font-size:10px; color:var(--warn);
+    font-weight:600; letter-spacing:.04em }
+  td.num { cursor:help; font-variant-numeric:tabular-nums }
+  td.empty { color:var(--line) }
+
+  .tl { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:24px 24px 16px }
+  .lane { position:relative; height:30px }
+  .bar { position:absolute; top:5px; height:20px; border-radius:5px; display:flex;
+    align-items:center; padding:0 9px; overflow:hidden; white-space:nowrap;
+    font-size:11px; color:#fff; font-family:ui-monospace,Menlo,monospace }
+  .bar span { opacity:.94 }
+  .l0 { background:#9a3412 } .l1 { background:#3f6212 }
+  .l2 { background:#1e40af } .l3 { background:#6b21a8 }
+  .axis { display:flex; justify-content:space-between; margin-top:10px; padding-top:10px;
+    border-top:1px solid var(--line); font-size:11px; color:var(--muted) }
+  .legend { display:flex; flex-wrap:wrap; gap:18px; margin-top:16px; font-size:12.5px; color:var(--muted) }
+  .legend i { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:7px; vertical-align:-1px }
+
+  ul.tags { list-style:none; padding:0; margin:0; display:grid; gap:10px }
+  ul.tags li { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:12px 16px; font-size:13.5px; display:flex; flex-wrap:wrap; gap:10px; align-items:baseline }
+  ul.tags li span { color:var(--muted) }
+
+  .method { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:24px }
+  .method p { margin:0 0 12px; color:var(--muted); font-size:14.5px }
+  .method p:last-child { margin-bottom:0 }
+  pre { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+    overflow-x:auto; font-size:12.5px; margin:12px 0 0; color:var(--ink) }
+  footer { margin-top:72px; padding-top:22px; border-top:1px solid var(--line);
+    font-size:12.5px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px }
+  a { color:var(--accent) }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">SEC EDGAR · XBRL · Reference data &amp; data quality</div>
+  <h1>One company, four revenue figures</h1>
+  <p class="lede">For <strong>Microsoft Corporation</strong>, annual revenue is filed under up to four different
+  XBRL tags across FY2010–FY2026. Two of them coexist in the same fiscal year and give numbers
+  <strong>57% apart</strong>. Both are correct. Both are in the same filing.</p>
+  <p class="lede">This page reconciles them — and shows what breaks in a pipeline that
+  assumes a tag name is a stable identifier.</p>
+
+  <div class="meta">
+    <div><b>4</b> tags observed</div>
+    <div><b>17</b> fiscal years</div>
+    <div>CIK <b>789019</b></div>
+    <div>Source: <b>data.sec.gov XBRL API</b></div>
+    <div>Generated <b>2026-10-01</b></div>
+  </div>
+
+  <h2>What the data shows</h2>
+  <div class="findings"><article class="find"><h3>Three different tags for one line item</h3><p>Microsoft's annual revenue has been tagged three different ways since FY2010: <code>Revenues</code> (FY2010), <code>SalesRevenueNet</code> (FY2011–FY2017), then <code>RevenueFromContractWithCustomerExcludingAssessedTax</code> (FY2018 onward). A pipeline that keys on any single tag silently truncates the history.</p></article><article class="find"><h3>Two valid revenue figures for the same fiscal year</h3><p>In FY2017 both <code>SalesRevenueNet</code> ($89.95B) and <code>SalesRevenueGoodsNet</code> ($57.19B) are filed. The gap is <strong>$32.76B</strong> — that is the service revenue, reported separately. Picking the wrong tag understates revenue by <strong>36%</strong>.</p></article><article class="find"><h3>The FY2017→FY2018 jump is not all growth</h3><p>Revenue goes from $89.95B to $110.36B (+23%) — but the tag changed in the same period (ASC 606 adoption). Part of that move is a definitional break, not a business result. Comparing the two numbers directly is invalid.</p></article><article class="find"><h3>Every figure is traceable to a filing</h3><p>Hover any cell to see its exact accession number, reporting period and filing date. Nothing on this page is derived from a source you cannot open on sec.gov.</p></article></div>
+
+  <h2>The reconciliation</h2>
+  <div class="tw"><table class="grid"><thead><tr><th class="yr">Fiscal year</th><th><span class="tag">Revenues</span></th><th><span class="tag">SalesRevenueNet</span></th><th><span class="tag">SalesRevenueGoodsNet</span></th><th><span class="tag">RevenueFromContractWithCustomerExcludingAssessedTax</span></th></tr></thead><tbody><tr><th class="yr">FY2010</th><td class="num" title="Revenues · FY2010 · period 2009-07-01 → 2010-06-30 · accession 0001193125-10-171791 · filed 2010-07-30">62.5</td><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td></tr><tr><th class="yr">FY2011</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2011 · period 2010-07-01 → 2011-06-30 · accession 0001193125-11-200680 · filed 2011-07-28">69.9</td><td class="empty">—</td><td class="empty">—</td></tr><tr><th class="yr">FY2012</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2012 · period 2011-07-01 → 2012-06-30 · accession 0001193125-12-316848 · filed 2012-07-26">73.7</td><td class="empty">—</td><td class="empty">—</td></tr><tr><th class="yr">FY2013</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2013 · period 2012-07-01 → 2013-06-30 · accession 0001193125-13-310206 · filed 2013-07-30">77.8</td><td class="empty">—</td><td class="empty">—</td></tr><tr><th class="yr">FY2014</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2014 · period 2013-07-01 → 2014-06-30 · accession 0001193125-14-289961 · filed 2014-07-31">86.8</td><td class="empty">—</td><td class="empty">—</td></tr><tr><th class="yr">FY2015</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2015 · period 2014-07-01 → 2015-06-30 · accession 0001193125-15-272806 · filed 2015-07-31">93.6</td><td class="empty">—</td><td class="empty">—</td></tr><tr class="dup"><th class="yr">FY2016</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2016 · period 2015-07-01 → 2016-06-30 · accession 0001193125-16-662209 · filed 2016-07-28">85.3</td><td class="num" title="SalesRevenueGoodsNet · FY2016 · period 2015-07-01 → 2016-06-30 · accession 0001193125-16-662209 · filed 2016-07-28">61.5</td><td class="empty">—</td></tr><tr class="dup"><th class="yr">FY2017</th><td class="empty">—</td><td class="num" title="SalesRevenueNet · FY2017 · period 2016-07-01 → 2017-06-30 · accession 0001564590-17-014900 · filed 2017-08-02">90.0</td><td class="num" title="SalesRevenueGoodsNet · FY2017 · period 2016-07-01 → 2017-06-30 · accession 0001564590-17-014900 · filed 2017-08-02">57.2</td><td class="empty">—</td></tr><tr><th class="yr">FY2018</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2018 · period 2017-07-01 → 2018-06-30 · accession 0001564590-18-019062 · filed 2018-08-03">110.4</td></tr><tr><th class="yr">FY2019</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2019 · period 2018-07-01 → 2019-06-30 · accession 0001564590-19-027952 · filed 2019-08-01">125.8</td></tr><tr><th class="yr">FY2020</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2020 · period 2019-07-01 → 2020-06-30 · accession 0001564590-20-034944 · filed 2020-07-30">143.0</td></tr><tr><th class="yr">FY2021</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2021 · period 2020-07-01 → 2021-06-30 · accession 0001564590-21-039151 · filed 2021-07-29">168.1</td></tr><tr><th class="yr">FY2022</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2022 · period 2021-07-01 → 2022-06-30 · accession 0001564590-22-026876 · filed 2022-07-28">198.3</td></tr><tr><th class="yr">FY2023</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2023 · period 2022-07-01 → 2023-06-30 · accession 0000950170-23-035122 · filed 2023-07-27">211.9</td></tr><tr><th class="yr">FY2024</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2024 · period 2023-07-01 → 2024-06-30 · accession 0000950170-24-087843 · filed 2024-07-30">245.1</td></tr><tr><th class="yr">FY2025</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2025 · period 2024-07-01 → 2025-06-30 · accession 0000950170-25-100235 · filed 2025-07-30">281.7</td></tr><tr><th class="yr">FY2026</th><td class="empty">—</td><td class="empty">—</td><td class="empty">—</td><td class="num" title="RevenueFromContractWithCustomerExcludingAssessedTax · FY2026 · period 2025-07-01 → 2026-06-30 · accession 0001193125-26-323660 · filed 2026-07-29">331.8</td></tr></tbody></table></div>
+  <p style="font-size:13px;color:var(--muted);margin-top:12px">
+    Figures in USD billions. Hover any cell for its reporting period, accession number and filing date.
+    Rows marked <em>two tags</em> have more than one valid value for the same fiscal year.
+  </p>
+
+  <h2>Tag coverage over time</h2>
+  <div class="tl"><div class="lane"><div class="bar l0" style="left:0.00%;width:5.88%" title="Revenues FY2010–FY2010"><span>Revenues</span></div></div><div class="lane"><div class="bar l1" style="left:5.88%;width:41.18%" title="SalesRevenueNet FY2011–FY2017"><span>SalesRevenueNet</span></div></div><div class="lane"><div class="bar l2" style="left:35.29%;width:11.76%" title="SalesRevenueGoodsNet FY2016–FY2017"><span>SalesRevenueGoodsNet</span></div></div><div class="lane"><div class="bar l3" style="left:47.06%;width:52.94%" title="RevenueFromContractWithCustomerExcludingAssessedTax FY2018–FY2026"><span>Revenue</span></div></div><div class="axis"><span>2010</span><span>2012</span><span>2014</span><span>2016</span><span>2018</span><span>2020</span><span>2022</span><span>2024</span><span>2026</span></div></div>
+  <div class="legend">
+    <span><i class="l0"></i>Revenues</span>
+    <span><i class="l1"></i>SalesRevenueNet</span>
+    <span><i class="l2"></i>SalesRevenueGoodsNet</span>
+    <span><i class="l3"></i>RevenueFromContractWithCustomerExcludingAssessedTax</span>
+  </div>
+
+  <h2>The tags, in plain English</h2>
+  <ul class="tags"><li><code>Revenues</code><span>Total revenue (legacy tag)</span></li><li><code>SalesRevenueNet</code><span>Net sales — total (product + service)</span></li><li><code>SalesRevenueGoodsNet</code><span>Net sales — goods only (excludes services)</span></li><li><code>RevenueFromContractWithCustomerExcludingAssessedTax</code><span>Revenue from contracts with customers (ASC 606)</span></li></ul>
+
+  <h2>Method</h2>
+  <div class="method">
+    <p>Data is pulled directly from the SEC's public XBRL frames API — no third-party data vendor,
+    no scraping, no licensed market data. Every value is retained together with the accession number
+    of the filing it came from, so each figure can be traced back to a primary source.</p>
+    <p>Only annual (10-K, full fiscal year) values are used. Quarterly and cumulative periods are
+    filtered out by measuring each reported period length and keeping only those between 330 and 400 days.
+    Where a fiscal year appears in more than one filing, the most recently filed value is kept.</p>
+    <pre>GET https://data.sec.gov/api/xbrl/companyconcept/CIK789019/us-gaap/&lt;tag&gt;.json
+User-Agent: &lt;name&gt; &lt;email&gt;   # required by SEC fair-access policy</pre>
+  </div>
+
+  <footer>
+    <span>Public data only · SEC EDGAR XBRL · no employer data used</span>
+    <span>Lynn Zhou · lynnzhou.dev</span>
+  </footer>
+
+</div>
+</body>
+</html>
